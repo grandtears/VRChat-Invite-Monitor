@@ -1,0 +1,76 @@
+.credit-modal-content {
+    text-align: center;
+    max-width: 400px;
+}
+
+.credit-body {
+    padding: 40px 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.app-title {
+    font-size: 24px;
+    font-weight: 500;
+    color: #333;
+    margin: 0;
+}
+
+.app-version {
+    color: #666;
+    margin: 0;
+    font-size: 16px;
+}
+
+.credit-section {
+    margin: 10px 0;
+    color: #666;
+    font-weight: 600;
+    line-height: 1.6;
+}
+
+.social-links {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 10px 0 30px;
+}
+
+.link-button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 15px;
+    padding: 0;
+}
+
+.link-button.twitter {
+    color: #1da1f2;
+}
+
+.link-button.vrchat {
+    color: #e31b6d;
+}
+
+.separator {
+    color: #ccc;
+}
+
+.btn-close-modal {
+    background: white;
+    border: 1px solid #cbd5e0;
+    color: #4a5568;
+    padding: 8px 30px;
+    border-radius: 6px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+.btn-close-modal:hover {
+    background: #f7fafc;
+    border-color: #a0aec0;
+}
