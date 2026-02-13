@@ -61,9 +61,14 @@ const DEFAULT_SETTINGS: Settings = {
 
 function getSettingsPath(): string {
   // exeと同じディレクトリに設定ファイルを保存（ポータブル対応）
-  const exeDir = app.isPackaged
-    ? path.dirname(app.getPath('exe'))
-    : app.getAppPath();
+  let exeDir: string;
+  if (app.isPackaged) {
+    // Portable版: PORTABLE_EXECUTABLE_DIRにexeの元のディレクトリが入る
+    // （portable exeは一時ディレクトリに展開されるため、app.getPath('exe')は使えない）
+    exeDir = process.env.PORTABLE_EXECUTABLE_DIR || path.dirname(app.getPath('exe'));
+  } else {
+    exeDir = app.getAppPath();
+  }
   return path.join(exeDir, 'settings.json');
 }
 

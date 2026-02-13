@@ -167,7 +167,7 @@ function App() {
       <div className="content">
         {notifications.length === 0 ? (
           <div className="empty-state">
-            <p>� 通知はまだありません</p>
+            <p>🔔 通知はまだありません</p>
             <p className="help-text">
               VRChatでInviteやRequestInviteを受け取ると、ここに表示されます。
               <br />
