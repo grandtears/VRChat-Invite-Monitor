@@ -27,7 +27,7 @@ export interface ElectronAPI {
   openWorldUrl: (worldId: string) => void;
   openInstanceUrl: (worldId: string, instanceId: string) => void;
   openExternal: (url: string) => void;
-  openExternal: (url: string) => void;
+
   onDebugLog: (callback: (message: string) => void) => void;
   sendTestNotification: () => void;
 }

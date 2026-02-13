@@ -6,29 +6,48 @@ VRChatのログファイルをリアルタイムで監視し、受信した **In
 
 ![Screenshot](docs/screenshot.png)
 
+## 主な機能
+
+- 📨 **Invite / Request Invite の自動検知** — VRChatログファイルをリアルタイム監視
+- 🌐 **ワールド情報の表示** — VRChat APIと連携してワールド名を自動取得
+- 🚀 **ワンクリック参加** — ワールドページを開く・インスタンスに直接参加
+- 🔄 **ログファイル自動切替** — VRChat再起動時に新しいログへ自動追従
+- ⚙️ **設定の永続化** — ログフォルダの設定を自動保存
+
 ## 使い方
 
 1. [Releases](https://github.com/Sonoty/VRChatInviteMonitor/releases) ページから最新の `.exe` をダウンロードします。
 2. ダウンロードしたファイルを実行します。
-3. VRChatをプレイすると、自動的に通知が検知・表示されます。
-   （初回起動時にログフォルダを自動検出します）
+3. 初回起動時にVRChatのログフォルダを選択します。
+4. VRChatをプレイすると、自動的に通知が検知・表示されます。
 
-## 技術仕様 (Technical Specifications)
+> **Note**: インストール不要です。`.exe` ファイルをそのまま実行してください。
 
-本アプリケーションは、ElectronとWeb技術をベースにしたモダンなデスクトップアプリケーションとして開発されています。
+## 技術仕様
 
 ### アーキテクチャ構成
 - **Frontend**: React, TypeScript, Vite
 - **Backend (Electron Main)**: Electron, Node.js (fs, chokidar)
 - **API Server**: Hono (VRChat APIとの通信用プロキシ)
 
-アプリ内でHonoサーバーを立ち上げ、VRChat APIへのリクエストをプロキシすることで、CORS問題を回避しつつ安全に通信を行います。
+アプリ内でHonoサーバーを起動し、VRChat APIへのリクエストをプロキシすることで、CORS問題を回避しつつ安全に通信を行います。
 
-## 開発者向け (Development)
+### ビルド構成
+
+- **Electron Main Process**: `vite-plugin-electron` によりバンドル（依存関係を含む）
+- **API Server**: `esbuild` により単一ファイルにバンドル
+- **パッケージング**: `electron-builder` でポータブル `.exe` として出力
+
+## 開発者向け
 
 ソースコードからビルドする場合の手順です。
 
-### ビルド方法
+### 前提条件
+
+- Node.js v20+
+- npm
+
+### セットアップ
 
 ```bash
 # 依存関係インストール
@@ -37,13 +56,13 @@ npm install
 # 開発モード起動
 npm run dev
 
-# アプリケーションのビルド
-npm run build
+# ビルド & パッケージング（exe生成）
+npm run package
 ```
 
-ビルド成果物は `dist/\win-unpacked` フォルダ（ポータブル実行ファイル）またはインストーラーとして出力されます。
+ビルド成果物は `release/` フォルダにポータブル実行ファイルとして出力されます。
 
-## ライセンス (License)
+## ライセンス
 
 本ソフトウェアは [MIT License](LICENSE) の下で公開されています。
 

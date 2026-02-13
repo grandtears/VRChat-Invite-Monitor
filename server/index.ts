@@ -64,10 +64,7 @@ export function startServer(port: number = 3737) {
   return server;
 }
 
-import { fileURLToPath } from 'node:url';
-import process from 'node:process';
-
-if (process.argv[1] === fileURLToPath(import.meta.url)) {
+if (require.main === module) {
   startServer();
 }
 

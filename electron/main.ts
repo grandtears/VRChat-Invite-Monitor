@@ -3,11 +3,41 @@ import * as path from 'path';
 import * as fs from 'fs';
 import * as chokidar from 'chokidar';
 import { spawn, ChildProcess, execSync } from 'child_process';
-import { fileURLToPath } from 'url';
+
 
 // ESモジュール用の__dirname定義
+import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
+
+// Logging setup
+const LOG_FILE_PATH = path.join(app.getPath('userData'), 'app-startup.log');
+
+function logToFile(message: string) {
+  try {
+    const timestamp = new Date().toISOString();
+    fs.appendFileSync(LOG_FILE_PATH, `${timestamp}: ${message}\n`);
+  } catch (e) { /* ignore */ }
+}
+
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = (...args: any[]) => {
+  originalLog(...args);
+  logToFile(args.map(a => String(a)).join(' '));
+};
+
+console.error = (...args: any[]) => {
+  originalError(...args);
+  logToFile(`[ERROR] ${args.map(a => String(a)).join(' ')}`);
+};
+
+logToFile('----------------------------------------');
+logToFile(`App starting... v${app.getVersion()}`);
+logToFile(`Exec Path: ${process.execPath}`);
+logToFile(`Resources Path: ${process.resourcesPath}`);
+
 
 let mainWindow: BrowserWindow | null = null;
 let logWatcher: chokidar.FSWatcher | null = null;
@@ -103,27 +133,41 @@ function startHonoServer() {
   return new Promise<void>((resolve, reject) => {
     console.log('Starting Hono server...');
 
-    // 開発環境と本番環境で異なるサーバーパスを使用
-    const serverPath = process.env.NODE_ENV === 'development'
-      ? path.join(__dirname, '../server/index.ts')
-      : path.join(__dirname, '../server/index.js');
+    // 開発環境と本番環境で異なるサーバーパスとコマンドを使用
+    let serverPath = '';
+    let command = '';
+    let args: string[] = [];
+    let env: NodeJS.ProcessEnv = { ...process.env, PORT: HONO_SERVER_PORT.toString() };
 
-    // コマンドの決定
-    let command = 'node';
-    let args = [serverPath];
+    if (app.isPackaged) {
+      // 本番環境: app.asar.unpacked からサーバーファイルを指定
+      serverPath = path.join(process.resourcesPath, 'app.asar.unpacked', 'dist-server', 'index.js');
+      // Bundled Electron Nodeを使用
+      command = process.execPath;
+      args = [serverPath];
+      env = { ...env, ELECTRON_RUN_AS_NODE: '1' };
+    } else {
+      // 開発環境
+      serverPath = path.join(__dirname, '../server/index.ts');
 
-    if (process.env.NODE_ENV === 'development') {
-      // Windows環境でのtsxのパス解決
+      // Windows環境でのtsxのパス解決 (既存ロジック)
       command = path.join(process.cwd(), 'node_modules', '.bin', process.platform === 'win32' ? 'tsx.cmd' : 'tsx');
       args = [serverPath];
     }
 
     console.log(`Spawning server with command: ${command} ${args.join(' ')}`);
+    console.log(`Server path: ${serverPath}`);
+    console.log(`Env ELECTRON_RUN_AS_NODE: ${env.ELECTRON_RUN_AS_NODE}`);
+
+    if (!fs.existsSync(serverPath)) {
+      console.error(`Server file NOT FOUND at: ${serverPath}`);
+    } else {
+      console.log(`Server file exists at: ${serverPath}`);
+    }
 
     honoServerProcess = spawn(command, args, {
-      shell: true,
-      env: { ...process.env, PORT: HONO_SERVER_PORT.toString() }
-      // stdio: 'inherit' は削除し、デフォルトのpipeを使用
+      shell: false, // shell: trueは不要、むしろ意図しない動作の原因になることも
+      env: env
     });
 
     if (honoServerProcess.stdout) {
@@ -217,7 +261,7 @@ async function parseNotification(logLine: string) {
       try {
         const response = await fetch(`http://localhost:${HONO_SERVER_PORT}/api/world/${worldId}`);
         if (response.ok) {
-          const worldInfo = await response.json();
+          const worldInfo = await response.json() as any;
           worldName = worldInfo.name;
           console.log(`Fetched world name from API: ${worldName}`);
         }
@@ -380,6 +424,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    autoHideMenuBar: true,
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,
@@ -387,6 +432,9 @@ function createWindow() {
       spellcheck: false
     }
   });
+
+  // デフォルトメニューバーを非表示
+  mainWindow.setMenuBarVisibility(false);
 
   if (process.env.NODE_ENV === 'development') {
     mainWindow.loadURL('http://localhost:5173');

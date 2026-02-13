@@ -44,7 +44,7 @@ export async function getWorldInfo(worldId: string): Promise<WorldInfo | null> {
     const url = `${VRC_API_BASE}/worlds/${worldId}`;
     console.log(`Fetching world info: ${url}`);
 
-    const headers: HeadersInit = {
+    const headers = {
       'User-Agent': 'VRCInviteMonitor/1.0',
     };
 
@@ -61,7 +61,7 @@ export async function getWorldInfo(worldId: string): Promise<WorldInfo | null> {
       throw new Error(`API request failed: ${response.status}`);
     }
 
-    const data = await response.json();
+    const data = await response.json() as any;
 
     const worldInfo: WorldInfo = {
       id: data.id,
