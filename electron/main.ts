@@ -421,10 +421,16 @@ function watchLogDirectory(directory: string) {
 function createWindow() {
   const preloadPath = path.join(__dirname, '../electron/preload.cjs');
 
+  // アイコンパスを設定（開発/本番で異なるパス）
+  const iconPath = app.isPackaged
+    ? path.join(process.resourcesPath, 'app.asar', 'icon.ico')
+    : path.join(__dirname, '../icon.ico');
+
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
     autoHideMenuBar: true,
+    icon: iconPath,
     webPreferences: {
       preload: preloadPath,
       contextIsolation: true,

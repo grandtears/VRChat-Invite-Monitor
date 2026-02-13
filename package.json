@@ -42,7 +42,9 @@
       "dist/**/*",
       "dist-electron/**/*",
       "dist-server/**/*",
-      "electron/preload.cjs"
+      "electron/preload.cjs",
+      "icon.ico",
+      "icon.png"
     ],
     "directories": {
       "output": "release"
@@ -50,7 +52,8 @@
     "win": {
       "target": [
         "portable"
-      ]
+      ],
+      "icon": "icon.ico"
     },
     "asarUnpack": [
       "dist-server/**/*"
